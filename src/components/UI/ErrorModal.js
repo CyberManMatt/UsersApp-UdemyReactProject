@@ -1,12 +1,16 @@
 import Card from "./Card";
 import Button from "./Button";
 import classes from "./ErrorModal.module.css";
+import ReactDOM from "react-dom";
 
-export function ErrorModal(props) {
+function Backdrop(props) {
+  // If the user clicks outside the Error Modal, it clears the error.
+  return <div className={classes.backdrop} onClick={props.onClear} />
+}
+
+function ModalOverlay(props) {
   return (
-    <>
-      <div className={classes.backdrop} />
-      <Card className={classes.modal}>
+    <Card className={classes.modal}>
         <header className={classes.header}>
           <h2>{props.title}</h2>
         </header>
@@ -17,6 +21,14 @@ export function ErrorModal(props) {
           <Button onClick={props.onClear}>Okay</Button>
         </footer>
       </Card>
+  )
+}
+
+export function ErrorModal(props) {
+  return (
+    <>
+      {ReactDOM.createPortal(<Backdrop onClear={props.onClear}/>, document.getElementById("backdrop-root"))}
+      {ReactDOM.createPortal(<ModalOverlay title={props.title} message={props.message} onClear={props.onClear} />, document.getElementById("overlay-root"))}
     </>
   );
 }

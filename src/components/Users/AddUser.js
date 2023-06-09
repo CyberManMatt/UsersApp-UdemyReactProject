@@ -3,23 +3,27 @@
 import Button from "../UI/Button";
 import Card from "../UI/Card";
 import classes from "./AddUser.module.css";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ErrorModal } from "../UI/ErrorModal";
 
 const AddUser = (props) => {
-  // Initialize state for both username and age
-  const [enteredUsername, setEnteredUsername] = useState("");
-  const [enteredAge, setEnteredAge] = useState("");
 
   // Initialize error state
   const [error, setError] = useState();
+
+  // Refs must be used inside the component function, it will NOT work in a nested function inside the component
+  const nameInputRef = useRef();
+  const ageInputRef = useRef();
 
   const addUserHandler = (event) => {
     // Prevents the default behavior of sending POST data from the form to the server
     event.preventDefault();
 
+    const enteredName = nameInputRef.current.value;
+    const enteredUserAge = ageInputRef.current.value;
+
     // Validation: If the entered username or age is empty
-    if (enteredUsername.trim().length === 0 || enteredAge.trim().length === 0) {
+    if (enteredName.trim().length === 0 || enteredUserAge.trim().length === 0) {
       setError({
         title: "Invalid Input",
         message: "Please enter a valid name and age",
@@ -28,7 +32,7 @@ const AddUser = (props) => {
     }
 
     // Validation: If the entered age is less than 1
-    if (+enteredAge < 1) {
+    if (+enteredUserAge < 1) {
       setError({
         title: "Invalid Age",
         message: "Please enter a number greater than 0",
@@ -37,19 +41,11 @@ const AddUser = (props) => {
     }
 
     // Invoke the addUserHandler from props
-    props.onAddUser(enteredUsername, enteredAge);
+    props.onAddUser(enteredName, enteredUserAge);
 
-    // Reset the username and age field to blank after submitting
-    setEnteredUsername("");
-    setEnteredAge("");
-  };
-
-  const usernameChangeHandler = (event) => {
-    setEnteredUsername(event.target.value);
-  };
-
-  const ageChangeHandler = (event) => {
-    setEnteredAge(event.target.value);
+    // Reset the values
+    nameInputRef.current.value = "";
+    ageInputRef.current.value = "";
   };
 
   // Custom handler that clears the error state
@@ -58,8 +54,7 @@ const AddUser = (props) => {
   };
 
   return (
-    // If the user clicks outside the Error Modal, it clears the error.
-    <div onClick={clearErrorHandler}>
+    <>
       {/* If an error exists, display the Error Modal */}
       {error && (
         <ErrorModal
@@ -74,15 +69,14 @@ const AddUser = (props) => {
           <input
             id="username"
             type="text"
-            onChange={usernameChangeHandler}
-            value={enteredUsername}
+            ref={nameInputRef}
           />
           <label htmlFor="age">Age</label>
-          <input id="age" type="number" onChange={ageChangeHandler} />
+          <input id="age" type="number" ref={ageInputRef} />
           <Button type="submit">Add User</Button>
         </form>
       </Card>
-    </div>
+    </>
   );
 };
 
